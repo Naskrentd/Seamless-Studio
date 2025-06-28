@@ -1,2 +1,2 @@
 # Seamless-Studio
-Seamless pattern Checker for Surface Pattern Designers
+Seamless Pattern Checker for Surface Pattern Designers
