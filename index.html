@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seamless Studio by Delores Naskrent</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background: #f1efed;
+      color: #425152;
+      margin: 0;
+      padding: 2rem;
+    }
+    h1 {
+      color: #525b58;
+      font-size: 2rem;
+      text-align: center;
+      margin-bottom: 0.2rem;
+      font-family: 'Brush Script MT', cursive;
+    }
+    h2 {
+      text-align: center;
+      font-size: 1rem;
+      font-weight: 400;
+      letter-spacing: 0.5px;
+      margin-top: 0;
+    }
+    #upload-area {
+      text-align: center;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    input[type="file"] {
+      margin-top: 1rem;
+    }
+    #preview-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      overflow: auto;
+      background: white;
+      border: 1px solid #afb8b8;
+      margin-bottom: 2rem;
+    }
+    canvas {
+      width: 100%;
+      height: auto;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    label {
+      margin-bottom: 0.3rem;
+      font-size: 0.9rem;
+    }
+    input[type="range"],
+    input[type="number"],
+    select {
+      padding: 0.3rem;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Seamless Studio</h1>
+  <h2>BY DELORES NASKRENT</h2>
+  <div id="upload-area">
+    <label for="file-input">Drag and drop your pattern image, or click to upload:</label><br>
+    <input type="file" id="file-input" accept="image/*">
+  </div>
+
+  <div class="controls">
+    <div class="control-group">
+      <label for="scale">Scale (0.1x - 3x)</label>
+      <input type="range" id="scale" min="0.1" max="3" step="0.1" value="1">
+    </div>
+    <div class="control-group">
+      <label for="repeatX">Horizontal Repeats (1-10)</label>
+      <input type="number" id="repeatX" min="1" max="10" value="3">
+    </div>
+    <div class="control-group">
+      <label for="repeatY">Vertical Repeats (1-10)</label>
+      <input type="number" id="repeatY" min="1" max="10" value="3">
+    </div>
+    <div class="control-group">
+      <label for="repeatType">Layout</label>
+      <select id="repeatType">
+        <option value="full">Tile</option>
+        <option value="half-drop">Half Drop</option>
+        <option value="half-brick">Half Brick</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="preview-container">
+    <canvas id="pattern-canvas"></canvas>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById('file-input');
+    const canvas = document.getElementById('pattern-canvas');
+    const ctx = canvas.getContext('2d');
+    const scaleInput = document.getElementById('scale');
+    const repeatXInput = document.getElementById('repeatX');
+    const repeatYInput = document.getElementById('repeatY');
+    const repeatTypeInput = document.getElementById('repeatType');
+
+    let image = new Image();
+
+    function drawPattern() {
+      const scale = parseFloat(scaleInput.value);
+      const repeatX = parseInt(repeatXInput.value);
+      const repeatY = parseInt(repeatYInput.value);
+      const repeatType = repeatTypeInput.value;
+
+      const width = image.width * scale;
+      const height = image.height * scale;
+
+      canvas.width = width * repeatX;
+      canvas.height = height * repeatY;
+
+      for (let y = 0; y < repeatY; y++) {
+        for (let x = 0; x < repeatX; x++) {
+          let offsetX = 0;
+          let offsetY = 0;
+
+          if (repeatType === 'half-drop' && x % 2 !== 0) {
+            offsetY = height / 2;
+          }
+          if (repeatType === 'half-brick' && y % 2 !== 0) {
+            offsetX = width / 2;
+          }
+
+          ctx.drawImage(image, x * width + offsetX, y * height + offsetY, width, height);
+        }
+      }
+    }
+
+    fileInput.addEventListener('change', event => {
+      const file = event.target.files[0];
+      if (file && file.type.match('image.*')) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          image.onload = drawPattern;
+          image.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    scaleInput.addEventListener('input', drawPattern);
+    repeatXInput.addEventListener('input', drawPattern);
+    repeatYInput.addEventListener('input', drawPattern);
+    repeatTypeInput.addEventListener('input', drawPattern);
+  </script>
+</body>
+</html>
